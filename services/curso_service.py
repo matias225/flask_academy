@@ -16,7 +16,6 @@ def agregar_curso(nombre, instructor, duracion):
 
     db.session.add(curso)
     db.session.commit()
-
     return curso
 
 def editar_curso(curso, nombre, instructor, duracion):
@@ -25,5 +24,8 @@ def editar_curso(curso, nombre, instructor, duracion):
     curso.duracion = duracion
 
     db.session.commit()
-
     return curso
+
+def eliminar_curso(curso):
+    db.session.delete(curso)
+    db.session.commit()

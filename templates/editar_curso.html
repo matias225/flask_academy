@@ -117,19 +117,10 @@
                 </div>
 
                 <div class="d-flex gap-2">
-
-                    <a
-                            href="{{ url_for('index') }}"
-                            class="btn btn-secondary"
-                    >
+                    {{ form.submit(value="Guardar cambios", class="btn btn-outline-warning") }}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
                         Cancelar
                     </a>
-
-                    {{ form.submit(
-                    value="Guardar cambios",
-                    class="btn btn-warning"
-                    ) }}
-
                 </div>
             </form>
         </div>

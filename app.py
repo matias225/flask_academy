@@ -5,8 +5,14 @@ from flask import Flask, render_template, url_for, redirect, flash
 
 from extensions import db, migrate
 import models
-from forms import CursoForm
-from services.curso_service import agregar_curso, obtener_todos
+from forms import CursoForm, EliminarCursoForm
+from services.curso_service import (
+    agregar_curso,
+    obtener_todos,
+    obtener_por_id,
+    editar_curso,
+    eliminar_curso,
+)
 
 load_dotenv()
 app = Flask(__name__)
@@ -30,8 +36,8 @@ migrate.init_app(app, db)
 @app.route("/")
 def index():
     cursos = obtener_todos()
-
-    return render_template("index.html", cursos=cursos)
+    eliminar_form = EliminarCursoForm()
+    return render_template("index.html", cursos=cursos, eliminar_form=eliminar_form)
 
 @app.route("/agregar", methods=["GET", "POST"])
 def agregar():
@@ -46,6 +52,48 @@ def agregar():
         flash("Curso agregado correctamente.", "success")
         return redirect(url_for("index"))
     return render_template("agregar_curso.html", form=form)
+
+@app.route("/editar/<int:id_curso>", methods=["GET", "POST"])
+def editar(id_curso):
+    curso = obtener_por_id(id_curso)
+
+    if curso is None:
+        flash("El curso solicitado no existe.", "danger")
+        return redirect(url_for("index"))
+
+    form = CursoForm(obj=curso)
+
+    if form.validate_on_submit():
+        editar_curso(
+            curso=curso,
+            nombre=form.nombre.data,
+            instructor=form.instructor.data,
+            duracion=form.duracion.data
+        )
+        flash("Curso actualizado correctamente.", "success")
+        return redirect(url_for("index"))
+
+    return render_template("editar_curso.html", form=form, curso=curso)
+
+@app.route("/eliminar/<int:id_curso>", methods=["POST"])
+def eliminar(id_curso):
+    curso = obtener_por_id(id_curso)
+
+    if curso is None:
+        flash("El curso solicitado no existe.", "danger")
+        return redirect(url_for("index"))
+
+    eliminar_form = EliminarCursoForm()
+
+    if not eliminar_form.validate_on_submit():
+        flash("La solicitud de eliminación no es válida.", "danger")
+        return redirect(url_for("index"))
+
+    eliminar_curso(curso)
+
+    flash("Curso eliminado correctamente.", "success")
+
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run(debug=True)

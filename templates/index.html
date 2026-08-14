@@ -1,126 +1,153 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Academy</title>
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flask Academy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container">
-            <a class="navbar-brand text-warning" href="{{ url_for('index') }}">
-                🎓 Flask Academy
-            </a>
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
-                aria-controls="navbarNav"
-                aria-expanded="false"
-                aria-label="Mostrar navegación"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand text-warning" href="{{ url_for('index') }}">
+      🎓 Flask Academy
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Mostrar navegación"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a
-                            class="nav-link active"
-                            aria-current="page"
-                            href="{{ url_for('index') }}"
-                        >
-                            Cursos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ url_for('agregar') }}"
-                        >
-                            Agregar curso
-                        </a>
-                    </li>
-                </ul>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a
+            class="nav-link active"
+            aria-current="page"
+            href="{{ url_for('index') }}"
+          >
+            Cursos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{{ url_for('agregar') }}"
+          >
+            Agregar curso
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="text-warning">
+      🎓 Flask Academy
+    </h1>
+    <p class="lead">
+      Cursos disponibles
+    </p>
+  </div>
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+      {% for categoria, mensaje in mensajes %}
+        <div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
+          {{ mensaje }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="table-responsive">
+    <table class="table table-dark table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Curso</th>
+          <th>Instructor</th>
+          <th>Duración</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for curso in cursos %}
+        <tr>
+          <td>{{ curso.id_curso }}</td>
+          <td>{{ curso.nombre }}</td>
+          <td>{{ curso.instructor }}</td>
+          <td>{{ curso.duracion }}</td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="{{ url_for('editar', id_curso=curso.id_curso) }}" class="btn btn-sm btn-outline-warning">
+                Editar
+              </a>
+              <button type="button" class="btn btn-sm btn-outline-danger"
+                data-bs-toggle="modal" data-bs-target="#modalEliminar{{ curso.id_curso }}">
+                Eliminar
+              </button>
             </div>
-        </div>
-    </nav>
 
-    <main class="container py-5">
-        <div class="text-center mb-5">
-            <h1 class="text-warning">
-                🎓 Flask Academy
-            </h1>
-            <p class="lead">
-                Cursos disponibles
-            </p>
-        </div>
+            <!-- Modal de confirmación (Ubicado dentro del td para cumplir HTML estándar) -->
+            <div class="modal fade" id="modalEliminar{{ curso.id_curso }}"
+              tabindex="-1" aria-labelledby="modalEliminarLabel{{ curso.id_curso }}"
+              aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-warning" id="modalEliminarLabel{{ curso.id_curso }}">
+                      Confirmar eliminación
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el siguiente curso?</p>
+                    <strong>{{ curso.nombre }}</strong>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                      Cancelar
+                    </button>
+                    <form method="POST" action="{{ url_for('eliminar', id_curso=curso.id_curso) }}">
+                      {{ eliminar_form.hidden_tag() }}
+                      <button type="submit" class="btn btn-outline-danger">
+                        Eliminar
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5" class="text-center">
+            No hay cursos registrados.
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
 
-        {% with mensajes = get_flashed_messages(with_categories=true) %}
-            {% if mensajes %}
-                {% for categoria, mensaje in mensajes %}
-                    <div
-                        class="alert alert-{{ categoria }} alert-dismissible fade show"
-                        role="alert"
-                    >
-                        {{ mensaje }}
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Cerrar"
-                        ></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Curso</th>
-                        <th>Instructor</th>
-                        <th>Duración</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for curso in cursos %}
-                        <tr>
-                            <td>
-                                {{ curso.id_curso }}
-                            </td>
-                            <td>
-                                {{ curso.nombre }}
-                            </td>
-                            <td>
-                                {{ curso.instructor }}
-                            </td>
-                            <td>
-                                {{ curso.duracion }}
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center">
-                                No hay cursos registrados.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    ></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
