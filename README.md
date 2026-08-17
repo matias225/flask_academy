@@ -1,4 +1,4 @@
-# Rempositorio de la sección 18 del curso Universidad Python
+# Repositorio de la sección 18 del curso Universidad Python
 
 ## 1. Instalar dependencias
 `pip install flask flask-migrate flask-sqlalchemy flask-wtf pymysql python-dotenv`
